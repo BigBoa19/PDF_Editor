@@ -31,6 +31,7 @@ export function initApp(): void {
   const selectTool = new SelectTool(store);
 
   let pdf: LoadedPdf | null = null;
+  let originalFilename = 'document';
 
   const viewer = createPageViewer();
 
@@ -38,6 +39,7 @@ export function initApp(): void {
     onOpenFile: async (file: File) => {
       try {
         pdf = await loadPdf(file);
+        originalFilename = file.name.replace(/\.pdf$/i, '');
         store.clear();
         selectTool.deselect();
         toolManager.setActiveTool('select');
@@ -63,7 +65,7 @@ export function initApp(): void {
       try {
         selectTool.deselect();
         const bytes = await exportPdf(pdf.originalBytes, store.getAll());
-        downloadPdf(bytes, 'pdflite-export.pdf');
+        downloadPdf(bytes, `${originalFilename}-edited.pdf`);
       } catch (err) {
         console.error('Failed to export PDF:', err);
         alert('Failed to export PDF. Please try again.');
